@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: "Inter", sans-serif;
+    overflow-x: hidden;
+    overflow-y: hidden;
+  }
+nav{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    width: 100%;
+    height: 50px;
+    padding: 10px;
+    z-index: 100;
+    top: 0;
+    position: sticky;
+}
+.nav-items{
+    display: flex;
+    gap: 20px;
+    padding: 5px;
+}
+nav .brand{
+   font-size: 20px;
+}
+a{
+    text-decoration: none;
+    color: white;
+}
+h1{
+    padding-top: 15px;
+
+}
+p{
+    padding-top: 10px;
+    padding-bottom: 20px;
+}
+.container{
+    padding: 40px;
+}
+#login{
+    background-color: black;
+    color: white;
+    font-size: 20px;
+    font-weight: 400;
+    padding: 5px 20px;
+    width: 120px;
+    cursor: pointer;
+
+}
+#signup{
+    background-color: #ffffff;
+    color: black;
+    border: 1px solid black;
+    font-size: 20px;
+    width: 120px;
+    cursor: pointer;
+    
+}
+.container .btn-container{
+    display: flex;
+    gap:10px;
+    position: relative;
+
+}
+#image img{
+    width: 630px;
+    position: absolute;
+    top:170px;
+    right:10px;
+
+}

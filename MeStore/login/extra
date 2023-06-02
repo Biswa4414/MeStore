@@ -1,0 +1,372 @@
+const form = document.getElementById('input');
+
+var totalUser =[];
+
+//if there is a value stored in the localStorage with the key 'currUser'. If there is a value, it updates the display and class of an element with the ID 'message' to show a success message.
+
+if(localStorage.getItem('currUser')){
+    document.getElementById('message').style.display ='inline';
+    document.getElementById('message').setAttribute('class','green')
+    document.getElementById('message').innerText='Login Successfully';
+}
+
+// Now we add a eventListener on form & when it get submitted the code default the prevent
+
+form.addEventListener('submit',(event)=>{
+    event.preventDefault();
+    console.log("Hello");
+
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('pass').value;
+
+    if(!email || !password){
+        document.getElementById('message').style.display ='inline';
+        document.getElementById('message').setAttribute('class','red')
+        document.getElementById('message').innerText='Error:All Fields are Mandatory.';
+        return;
+    }
+
+    let flag=false;
+    let currUser;
+
+    //now we check are there totalUser present in the local storage if its yes then parse it
+
+    if(localStorage.getItem('totalUser')){
+        totalUser=JSON.parse(localStorage.getItem('totalUser'));
+
+        totalUser.forEach((user)=>{
+            if(user.email=email){
+                flag=true;
+                user.token = generateToken();
+                currUser=user;
+                localStorage.setItem('currUser',JSON.stringify(user));
+            }
+        })
+    }
+
+    //For wrong password
+    if(flag==true && password!=currUser.password){
+        document.getElementById('message').style.display='inline';
+        document.getElementById('message').setAttribute('class','red')
+        document.getElementById('message').innerText='Error : Wrong Password.'
+        return;
+    }
+
+    // if totalUser not present in localStorage
+
+    if(flag==flase){
+        document.getElementById('message').style.display='inline';
+        document.getElementById('message').setAttribute('class','red')
+        document.getElementById('message').innerText='Error : User does not Exist.'
+        return;
+    }
+    document.getElementById('message').style.display='inline';
+    document.getElementById('message').setAttribute('class','green')
+    document.getElementById('message').innerText='Error : Login Successfully'
+    return;
+   
+    form.reset();
+
+})
+
+// The generateToken() function generates a random token string of length 16 characters. Here's how it works:
+
+// It initializes an empty string variable token to store the generated token.
+// It loops 16 times using a for loop.
+// In each iteration, it generates a random number between 0 and 255 (inclusive) using Math.floor(Math.random() * 256). This number represents an ASCII value.
+// It converts the ASCII value to a character using String.fromCharCode().
+// It appends the generated character to the token string.
+// After the loop completes, it converts the token string to Base64 encoding using the btoa() function.
+
+function generateToken(){
+    let token='';
+    for(let i=0;i<16;i++){
+        token=token+String.fromCharCode(Math.floor(Math.random()*256));
+    }
+    return btoa(token);
+}
+
+                             // SHOP//
+
+                             const produtc = {
+                                id: 1,
+                                title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
+                                price: 109.95,
+                                description:
+                                    "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
+                                category: "men's clothing",
+                                image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
+                                rating: { rate: 3.9, count: 120 },
+                              };
+                              
+                              
+                              // Firstly we check in local storage that currentUser present or not inside it and if the result is true means its doesn't present then we take currentUser to login page
+                              
+                              if (!localStorage.getItem('currUser')) {
+                                location.href = '../login/index.html';
+                              }
+                              
+                              const itemsContainer = document.querySelector('.items');
+                              const search = document.getElementById('search');
+                              const allBtn = document.getElementById('all');
+                              const menBtn = document.getElementById('men');
+                              const womenBtn = document.getElementById('women');
+                              const jewelleryBtn = document.getElementById('jewellery');
+                              const electronicsBtn = document.getElementById('electronics');
+                              const range = document.getElementById('range');
+                              
+                              //Now we check cartArr is present in local storge or not if cartArr is present then change it from string to array using parse, else create a empty variable of cartArray
+                              
+                              var itemArr = [];
+                              
+                              if (localStorage.getItem('cartArr')) {
+                                var cartArr = JSON.parse(localStorage.getItem('cartArr'));
+                              }
+                              else {
+                                var cartArr = [];
+                              }
+                              
+                              // Now we fetch the data 
+                              
+                              fetch("https://fakestoreapi.com/products")
+                                .then((resp) => resp.json())
+                                .then((data) => {
+                                    itemArr = data;
+                                    localStorage.setItem('itemArr', JSON.stringify(itemArr));
+                                    showItems(itemArr);
+                                    console.log(itemArr);
+                                });
+                              
+                              //Now we have to define showItems function 
+                              
+                              //the showItems function takes an array of items (Arr) and dynamically generates HTML markup to display each item's information on the webpage, including the image, title, price, and rating.
+                              function showItems(Arr){
+                              itemsContainer.innerHTML='';
+                              Arr.forEach(ele => {
+                                itemsContainer.innerHTML+=`
+                              <div class="item">
+                              <img src="${ele.image}" alt="Item" />
+                              <div class="info">
+                               ${ele.title}
+                                  <div class="price">$${ele.price}</div>
+                                </div>
+                                <div style='margin-top:10px;' class="row">Rating: ${Math.floor(ele.rating.rate)}</div>
+                              </div>
+                              <button id="addBtn" onClick='addToCart(${ele.id})'>Add to Cart</button>
+                              </div>
+                              `
+                              });
+                              }
+                              
+                              //Whenever the user types or modifies in the search input the eventlistener is triggered 
+                              search.addEventListener('input',()=>{
+                              //here we filter the itemArr and assign its value to myArr
+                              myArr = itemArr.filter(ele=>{
+                                //check if user search ele title in lowercase we can search each item with lowercase
+                                if(ele.title.toLowerCase().includes(search.value.trim().toLowerCase())){
+                                  return ele;
+                                }
+                              })
+                              
+                              if(myArr.length==0){
+                                itemsContainer.innerHTML=`
+                                <p>Oops,No products found`
+                                return;
+                              }
+                              showItems(myArr);
+                              })
+                              
+                              // when the "allBtn" button is clicked, the code retrieves the "itemArr" value from the local storage, parses it as a JSON string, and assigns the resulting object to the myArr variable.
+                              allBtn.addEventListener('click',()=>{
+                              myArr=JSON.parse(localStorage.getItem('itemArr'));
+                              
+                              allBtn.style.backgroundColor='black';
+                              allBtn.style.color='white';
+                              menBtn.style.backgroundColor='white';
+                              menBtn.style.color='black';
+                              womenBtn.style.backgroundColor='white';
+                              womenBtn.style.color='black';
+                              jewelleryBtn.style.backgroundColor='white';
+                              jewelleryBtn.style.color='black';
+                              electronicsBtn.style.backgroundColor='white';
+                              electronicsBtn.style.color='black';
+                              
+                              showItems(myArr);
+                              })
+                              
+                              // when the "menBtn" button is clicked, the code filters the itemArr array and creates a new array myArr that includes only the elements with a category property equal to "men's clothing"
+                              menBtn.addEventListener('click',()=>{
+                              myArr=itemArr.filter(ele=>{
+                                if(err.category=="men's clothing"){
+                                  return ele;
+                                }
+                              })
+                              allBtn.style.backgroundColor='white';
+                              allBtn.style.color='black';
+                              menBtn.style.color='white';
+                              menBtn.style.backgroundColor='black';
+                              womenBtn.style.color='black';
+                              womenBtn.style.backgroundColor='white';
+                              jewelleryBtn.style.color='black';
+                              jewelleryBtn.style.backgroundColor='white';
+                              electronicsBtn.style.color='black';
+                              electronicsBtn.style.backgroundColor='white';
+                              
+                              showItems(myArr);
+                              })
+                              
+                              womenBtn.addEventListener('click',()=>{
+                              myArr=itemArr.filter(ele=>{
+                                if(ele.category=="women's clothing"){
+                                  return ele;
+                                }
+                              })
+                              allBtn.style.backgroundColor='white';
+                              allBtn.style.color='black';
+                              menBtn.style.color='white';
+                              menBtn.style.backgroundColor='black';
+                              womenBtn.style.color='black';
+                              womenBtn.style.backgroundColor='white';
+                              jewelleryBtn.style.color='black';
+                              jewelleryBtn.style.backgroundColor='white';
+                              electronicsBtn.style.color='black';
+                              electronicsBtn.style.backgroundColor='white';
+                              
+                              showItems();
+                              })
+                              
+                              jewelleryBtn.addEventListener('click',()=>{
+                              myArr=itemArr.filter(ele=>{
+                                if(ele.category=="jewellery"){
+                                  return ele;
+                                }
+                              })
+                              allBtn.style.backgroundColor='white';
+                              allBtn.style.color='black';
+                              menBtn.style.color='white';
+                              menBtn.style.backgroundColor='black';
+                              womenBtn.style.color='black';
+                              womenBtn.style.backgroundColor='white';
+                              jewelleryBtn.style.color='black';
+                              jewelleryBtn.style.backgroundColor='white';
+                              electronicsBtn.style.color='black';
+                              electronicsBtn.style.backgroundColor='white';
+                              
+                              showItems();
+                              })
+                              
+                              electronicsBtn.addEventListener('click',()=>{
+                              myArr=itemArr.filter(ele=>{
+                                if(ele.category=="electronics"){
+                                  return ele;
+                                }
+                              })
+                              allBtn.style.backgroundColor='white';
+                              allBtn.style.color='black';
+                              menBtn.style.color='white';
+                              menBtn.style.backgroundColor='black';
+                              womenBtn.style.color='black';
+                              womenBtn.style.backgroundColor='white';
+                              jewelleryBtn.style.color='black';
+                              jewelleryBtn.style.backgroundColor='white';
+                              electronicsBtn.style.color='black';
+                              electronicsBtn.style.backgroundColor='white';
+                              
+                              showItems();
+                              })
+                              
+                              //when the value of the range input changes, the code either displays all items (when the range value is 0) or filters the itemArr array based on the selected rating range. The filtered items are stored in the myArr variable for further use.
+                              
+                              range.addEventListener('input',()=>{
+                               console.log(range.value);
+                              
+                               if(range.value==0){
+                                showItems(myArr);
+                                return;
+                               }
+                              
+                               myArr = itemArr.filter(ele=>{
+                                if(Math.floor(ele.rating.rate)==range.value){
+                                  return ele;
+                                }
+                               })
+                                
+                               if(myArr.length==0){
+                                itemsContainer.innerHTML=`
+                                <p>Oops,No products found`
+                                return;
+                               }
+                               showItems(myArr);
+                              })
+                              
+                              //Here we call the document.querySelectorAll to select checkbox data then add an eventListener on a element name "c" where we change the data & when it change we call a function filterProducts
+                              
+                              document.querySelectorAll('input[type="checkbox"]').forEach(c=>{
+                              c.addEventListener('change',filterProducts);
+                              });
+                              
+                              //The const checkedRanges = checkboxes.filter(c => c.checked).map(c => c.value) filters the checkboxes array to include only the checkboxes that are checked (c.checked). The resulting array contains the checked checkboxes. Then, the map() method is used to extract the value property of each checked checkbox, resulting in an array of checked ranges.
+                              //Array.from used to convert nodeList data to Array
+                              
+                              function filterProducts(){
+                              const checkboxes = Array.from(document.querySelectorAll('input[name="prange"]'));
+                              const checkedRanges = checkboxes.filter(c=>c.checked).map(c=>c.value);
+                              
+                              if (checkedRanges.length===0){
+                                showItems(itemArr);
+                                return;
+                              }
+                              
+                              
+                              // The code then loops through each selected price range (range) in the checkedRanges array.
+                              
+                              // If the current range is "100+", the code checks if the product's price is greater than or equal to 100. If it is, return true; is used to include the product in the filtered results.
+                              
+                              // If the current range is not "100+", the code splits the range string into minimum and maximum values using range.split('-'), and then parses them into floating-point numbers using .map(parseFloat).
+                              
+                              // The code checks if the product's price is within the current price range by verifying if it is greater than or equal to the minimum value (price >= min) and less than or equal to the maximum value (price <= max). If it is, return true;
+                              
+                              const filterProducts = itemArr.filter(p=>{
+                              const price =p.price;
+                              for(const range of checkedRanges){
+                                if(range==='100+' && price>=100){
+                                  return true;
+                                }
+                                const [min,max] =range.split('-').map(parseFloat);
+                                if(price>=min && price<=max){
+                                  return true;
+                                }
+                              }
+                              return false;
+                              });
+                              
+                              // Inside the callback function, the code checks if the current element (p) is present in the filteredProducts array using the includes() method. If it is, return p; is used to include the element in the filtered results
+                              
+                              myArr=itemArr.filter(p=>{
+                              if(filterProducts.includes(p)){
+                                return p;
+                              }
+                              });
+                              showItems(myArr);
+                              }
+                              
+                              // For each element, the code checks if its id property matches the provided id. If there is a match, the item variable is assigned the current element.
+                              
+                              // The item is then pushed to the cartArr array.
+                              
+                              // The updated cartArr is stored in the local storage using localStorage.setItem() after converting it to a string using JSON.stringify().
+                              
+                              // Finally, the console.log() statement is used to display the updated cartArr after parsing it from the local storage using JSON.parse(localStorage.getItem('cartArr'))
+                              
+                              function addToCart(id){
+                              let item;
+                              itemArr.forEach(ele=>{
+                                if(ele.id=id){
+                                  item =ele;
+                                }
+                              })
+                              
+                              cartArr.push(item);
+                              localStorage.showItem('cartArr',JSON.stringify(cartArr));
+                              console.log(JSON.parse(localStorage.getItem('cartArr')));
+                              }
